@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">酷欧天气</string>
     <string name="no_network">当前网络状态异常</string>
+    <string name="refuse_permission">拒绝权限无法使用程序特定功能</string>
 </resources>
