@@ -9,6 +9,8 @@ import com.baidu.location.LocationClientOption;
 import com.example.coolweather.lisenter.MyLocationListener;
 import com.example.coolweather.utils.NetworkUtils;
 
+import org.litepal.LitePal;
+
 /**
  * Created by liwei on 2017/2/21.
  */
@@ -23,6 +25,7 @@ public class MyApplication extends Application{
         super.onCreate();
         mContext=getApplicationContext();
         getLocationInfos();
+        LitePal.initialize(mContext);
     }
 
     /**
