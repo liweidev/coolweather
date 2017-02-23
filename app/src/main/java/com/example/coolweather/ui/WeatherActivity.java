@@ -5,8 +5,12 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -85,6 +89,13 @@ public class WeatherActivity extends MyBaseActivity {
     ImageView bingPicImg;
     @BindView(R.id.image_code)
     ImageView imageCode;
+    @BindView(R.id.swipe_refresh)
+    public SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.nav_button)
+    Button navButton;
+    @BindView(R.id.drawer_layout)
+    public DrawerLayout drawerLayout;
+    private String weatherId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,16 +103,18 @@ public class WeatherActivity extends MyBaseActivity {
         setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
         initStateBar();
+        initViews();
         SharedPreferences prs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherContent = prs.getString("weather", null);
         if (weatherContent != null) {
             Weather weather = JsonUtils.handlerWeatherResponse(weatherContent);
+            weatherId = weather.basic.weatherId;
             if (weather != null) {
                 showWeatherInfo(weather);
             }
         } else {
             //无缓存时,去服务器查询
-            String weatherId = getIntent().getStringExtra("weather_id");
+            weatherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
@@ -112,6 +125,23 @@ public class WeatherActivity extends MyBaseActivity {
         } else {
             loadBingPic();
         }
+
+
+    }
+
+    /**
+     * 初始化Views
+     */
+    private void initViews() {
+
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setOnRefreshListener(() -> {
+            requestWeather(weatherId);
+        });
+
+        navButton.setOnClickListener((v)->{
+            drawerLayout.openDrawer(GravityCompat.START);
+        });
 
 
     }
@@ -162,7 +192,8 @@ public class WeatherActivity extends MyBaseActivity {
      *
      * @param weatherId
      */
-    private void requestWeather(String weatherId) {
+    public void requestWeather(String weatherId) {
+        this.weatherId=weatherId;
         String weatherUrl = "http://guolin.tech/api/weather?cityid="
                 + weatherId + "&key=666db77849ad443fb81f94ac03b7ad42";
         HttpUtils.sendHttpRequest(weatherUrl, new Callback() {
@@ -170,6 +201,7 @@ public class WeatherActivity extends MyBaseActivity {
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> {
                     ToastUtils.showToast(R.string.load_weather_error);
+                    swipeRefresh.setRefreshing(false);
                 });
             }
 
@@ -187,6 +219,7 @@ public class WeatherActivity extends MyBaseActivity {
                     } else {
                         ToastUtils.showToast(R.string.load_weather_error);
                     }
+                    swipeRefresh.setRefreshing(false);
                 });
             }
         });
@@ -211,9 +244,9 @@ public class WeatherActivity extends MyBaseActivity {
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
         forcastLayout.removeAllViews();
-        String imageCodeUrl="http://files.heweather.com/cond_icon/"+weather.now.more.code+".png";
+        String imageCodeUrl = "http://files.heweather.com/cond_icon/" + weather.now.more.code + ".png";
         Glide.with(this).load(imageCodeUrl).into(imageCode);
-        LogUtils.d("imageCodeUrl",imageCodeUrl);
+        LogUtils.d("imageCodeUrl", imageCodeUrl);
         for (Forecast forecast : weather.froecastList) {
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forcastLayout, false);
             TextView dateText = (TextView) view.findViewById(R.id.date_text);
