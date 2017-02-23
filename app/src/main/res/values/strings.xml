@@ -7,4 +7,5 @@
     <string name="loading">正在加载...</string>
     <string name="load_weather_error">获取天气信息失败...</string>
     <string name="load_bing_error">获取背景图失败...</string>
+    <string name="auto_update_weather_error">后台更新服务器失败</string>
 </resources>

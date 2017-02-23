@@ -1,5 +1,6 @@
 package com.example.coolweather.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -21,6 +22,7 @@ import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.gson.Forecast;
 import com.example.coolweather.gson.Weather;
+import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.LogUtils;
@@ -126,7 +128,10 @@ public class WeatherActivity extends MyBaseActivity {
             loadBingPic();
         }
 
-
+        boolean status = prs.getBoolean("status", true);
+        if(!status){
+            ToastUtils.showToast(R.string.auto_update_weather_error);
+        }
     }
 
     /**
@@ -233,6 +238,9 @@ public class WeatherActivity extends MyBaseActivity {
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
+        if(weather!=null&&weather.status.equals("ok")){
+            startService(new Intent(this, AutoUpdateService.class));
+        }
         String cityName = weather.basic.cityNmae;
         String updateTime = weather.basic.update.updateTime;
         String degree = weather.now.temperature + "℃";

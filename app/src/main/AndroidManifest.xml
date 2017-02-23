@@ -40,13 +40,18 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote"></service>
+            android:process=":remote" />
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="mScm9Tz3HA6DfV7cTA4NXQxkD44MT44a" />
 
-        <activity android:name=".ui.WeatherActivity"></activity>
+        <activity android:name=".ui.WeatherActivity" />
+
+        <service
+            android:name=".service.AutoUpdateService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
