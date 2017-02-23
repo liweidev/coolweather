@@ -2,4 +2,9 @@
     <string name="app_name">酷欧天气</string>
     <string name="no_network">当前网络状态异常</string>
     <string name="refuse_permission">拒绝权限无法使用程序特定功能</string>
+    <string name="load_error">加载失败</string>
+    <string name="china">中国</string>
+    <string name="loading">正在加载...</string>
+    <string name="load_weather_error">获取天气信息失败...</string>
+    <string name="load_bing_error">获取背景图失败...</string>
 </resources>

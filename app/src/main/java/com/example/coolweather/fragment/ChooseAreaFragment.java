@@ -1,6 +1,7 @@
 package com.example.coolweather.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import com.example.coolweather.adapter.ChooseAreaAdapter;
 import com.example.coolweather.bean.City;
 import com.example.coolweather.bean.County;
 import com.example.coolweather.bean.Province;
+import com.example.coolweather.ui.WeatherActivity;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.LogUtils;
@@ -96,6 +98,12 @@ public class ChooseAreaFragment extends Fragment {
                 else if(currentLevel==LEVEL_CITY){
                     selectedCity=cityList.get(position);
                     queryCounties();
+                }else if(currentLevel==LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent=new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -116,7 +124,7 @@ public class ChooseAreaFragment extends Fragment {
      * 查询不到再去服务器查询
      */
     private void queryProvinces() {
-        titleText.setText("中国");
+        titleText.setText(R.string.china);
         backButton.setVisibility(View.INVISIBLE);
         provinceList=DataSupport.findAll(Province.class);
         if(provinceList.size()>0){
@@ -201,7 +209,7 @@ public class ChooseAreaFragment extends Fragment {
             public void onFailure(Call call, IOException e) {
                 getActivity().runOnUiThread(()->{
                     closeProgressDialog();
-                    ToastUtils.showToast("加载失败");
+                    ToastUtils.showToast(R.string.load_error);
                 });
             }
 
