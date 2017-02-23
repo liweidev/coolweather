@@ -48,11 +48,10 @@ public class MainActivity extends MyBaseActivity {
             //检查网络
             if(!NetworkUtils.isAvalibale()){
                 ToastUtils.showToast("网络异常，定位失败...");
-                return;
+            }else {
+                mClient.start();
             }
-            mClient.start();
         }
-
         SharedPreferences prs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prs.getString("weather",null)!=null){
             Intent intent=new Intent(this,WeatherActivity.class);

@@ -80,14 +80,15 @@ public class ChooseAreaFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area, container, false);
         ButterKnife.bind(this, view);
-        adapter=new ChooseAreaAdapter(dataList,getContext());
-        listView.setAdapter(adapter);
+        //LogUtils.d("listView",listView+"");
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        adapter=new ChooseAreaAdapter(dataList, getActivity());
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {

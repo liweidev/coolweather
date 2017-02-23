@@ -22,10 +22,13 @@ import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.gson.Forecast;
 import com.example.coolweather.gson.Weather;
+import com.example.coolweather.lisenter.ImagePathLisenter;
 import com.example.coolweather.service.AutoUpdateService;
+import com.example.coolweather.utils.ActivityUtils;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.LogUtils;
+import com.example.coolweather.utils.NotificationUtils;
 import com.example.coolweather.utils.ToastUtils;
 
 import java.io.IOException;
@@ -238,9 +241,6 @@ public class WeatherActivity extends MyBaseActivity {
      * @param weather
      */
     private void showWeatherInfo(Weather weather) {
-        if(weather!=null&&weather.status.equals("ok")){
-            startService(new Intent(this, AutoUpdateService.class));
-        }
         String cityName = weather.basic.cityNmae;
         String updateTime = weather.basic.update.updateTime;
         String degree = weather.now.temperature + "℃";
@@ -283,7 +283,30 @@ public class WeatherActivity extends MyBaseActivity {
         carWashText.setText("洗车指数:" + weather.suggestion.carWash.level + "\n" + weather.suggestion.carWash.info);
         ultravioletText.setText("紫外线强度:" + weather.suggestion.ultraviolet.level + "\n" + weather.suggestion.ultraviolet.info);
         weatherLayout.setVisibility(View.VISIBLE);
+        if(weather!=null&&weather.status.equals("ok")){
+            final Intent intent=new Intent(this, AutoUpdateService.class);
+            intent.putExtra("cityName",cityName);//大兴
+            intent.putExtra("weatherInfo",weatherInfo);//晴
+            intent.putExtra("degree",degree);//8℃
+            intent.putExtra("windLevel",windLevel);//西南风  4-5级
+
+
+            NotificationUtils.getImagePathFromCatch(imageCodeUrl, new ImagePathLisenter() {
+                @Override
+                public void sendImagePath(String imagepath) {
+                    runOnUiThread(()->{
+                        intent.putExtra("imageCodeUrl",imagepath);//图片地址
+                        startService(intent);
+                    });
+                }
+            });
+        }
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityUtils.removeAllActivity();
+    }
 }

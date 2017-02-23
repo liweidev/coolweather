@@ -1,6 +1,7 @@
 package com.example.coolweather.service;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -9,10 +10,12 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.example.coolweather.gson.Weather;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
+import com.example.coolweather.utils.NotificationUtils;
 
 import java.io.IOException;
 
@@ -24,7 +27,11 @@ import okhttp3.Response;
  * 后台自动更新天气
  */
 public class AutoUpdateService extends Service {
-
+    private String cityName;
+    private String weatherInfo;
+    private String degree;
+    private String windLevel;
+    private String imagePath;
     public AutoUpdateService() {
     }
 
@@ -35,6 +42,21 @@ public class AutoUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        cityName=intent.getStringExtra("cityName");
+        weatherInfo=intent.getStringExtra("weatherInfo");
+        degree=intent.getStringExtra("degree");
+        windLevel=intent.getStringExtra("windLevel");
+        imagePath=intent.getStringExtra("imageCodeUrl");
+        //前台显示天气
+        if(!TextUtils.isEmpty(cityName)&&
+                !TextUtils.isEmpty(degree)&&
+                !TextUtils.isEmpty(windLevel)&&
+                !TextUtils.isEmpty(weatherInfo)){
+            Notification nf = NotificationUtils.createNotification(cityName, degree + "    " + weatherInfo + "    " + windLevel, imagePath);
+            //stopForeground(true);
+            startForeground(1,nf);
+
+        }
         updateWeather();
         updateBingPic();
         AlarmManager manager= (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -51,7 +73,21 @@ public class AutoUpdateService extends Service {
      * 从服务器更新必应图片
      */
     private void updateBingPic() {
+        String requestBingPic="http://guolin.tech/api/bing_pic";
+        HttpUtils.sendHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String bingPic = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
+                editor.putString("bing_pic",bingPic);
+                editor.apply();
+            }
+        });
     }
 
     /**
@@ -81,13 +117,11 @@ public class AutoUpdateService extends Service {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                             editor.putString("weather",responseText);
                             editor.apply();
+
                         }
 
                     }
                 });
-
-
-
             }
         }
     }
