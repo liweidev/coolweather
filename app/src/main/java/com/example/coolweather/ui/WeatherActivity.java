@@ -1,6 +1,10 @@
 package com.example.coolweather.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -9,6 +13,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +26,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
+import com.example.coolweather.constant.Constant;
 import com.example.coolweather.gson.Forecast;
 import com.example.coolweather.gson.Weather;
 import com.example.coolweather.lisenter.ImagePathLisenter;
@@ -101,12 +108,14 @@ public class WeatherActivity extends MyBaseActivity {
     @BindView(R.id.drawer_layout)
     public DrawerLayout drawerLayout;
     private String weatherId;
+    LocationSucceeBroadcastReceiver locationSucceeBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
+        registeReceiver();
         initStateBar();
         initViews();
         SharedPreferences prs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -130,11 +139,16 @@ public class WeatherActivity extends MyBaseActivity {
         } else {
             loadBingPic();
         }
+    }
 
-        boolean status = prs.getBoolean("status", true);
-        if(!status){
-            ToastUtils.showToast(R.string.auto_update_weather_error);
-        }
+    /**
+     * 注册广播监听器
+     */
+    private void registeReceiver() {
+        locationSucceeBroadcastReceiver=new LocationSucceeBroadcastReceiver();
+        IntentFilter filter=new IntentFilter();
+        filter.addAction(Constant.LOCATION_SUCCEE_BROADCASTRECEIVER);
+        registerReceiver(locationSucceeBroadcastReceiver,filter);
     }
 
     /**
@@ -231,8 +245,6 @@ public class WeatherActivity extends MyBaseActivity {
                 });
             }
         });
-
-
     }
 
     /**
@@ -308,5 +320,38 @@ public class WeatherActivity extends MyBaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         ActivityUtils.removeAllActivity();
+        if(locationSucceeBroadcastReceiver!=null){
+            unregisterReceiver(locationSucceeBroadcastReceiver);
+        }
     }
+
+    /**
+     * 定位成功自动获取位置更新天气信息
+     */
+    class LocationSucceeBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String locationWeatherId = intent.getStringExtra("weatherId");
+            String countyName = intent.getStringExtra("countyName");
+            if(!TextUtils.isEmpty(locationWeatherId)){
+                AlertDialog.Builder dialog=new AlertDialog.Builder(WeatherActivity.this);
+                dialog.setTitle("定位成功");
+                dialog.setMessage("是否获取当前位置天气-"+countyName);
+                dialog.setCancelable(false);
+                dialog.setNegativeButton("取消",null);
+                dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        swipeRefresh.setRefreshing(true);
+                        requestWeather(locationWeatherId);
+                    }
+                });
+                dialog.show();
+
+            }
+        }
+    }
+
+
 }

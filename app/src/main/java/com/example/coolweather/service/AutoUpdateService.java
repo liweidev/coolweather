@@ -7,15 +7,19 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.example.coolweather.R;
 import com.example.coolweather.gson.Weather;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.NotificationUtils;
+import com.example.coolweather.utils.ToastUtils;
 
 import java.io.IOException;
 
@@ -32,6 +36,18 @@ public class AutoUpdateService extends Service {
     private String degree;
     private String windLevel;
     private String imagePath;
+    public static final int UPDATE_WEATHER_ERROR=0;
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case UPDATE_WEATHER_ERROR:
+                    ToastUtils.showToast(R.string.auto_update_weather_error);
+                    break;
+            }
+        }
+    };
     public AutoUpdateService() {
     }
 
@@ -107,6 +123,7 @@ public class AutoUpdateService extends Service {
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                         editor.putBoolean("status",false);
                         editor.apply();
+                        handler.sendEmptyMessage(UPDATE_WEATHER_ERROR);
                     }
 
                     @Override
@@ -116,6 +133,7 @@ public class AutoUpdateService extends Service {
                         if(weather!=null&&weather.status.equals("ok")){
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                             editor.putString("weather",responseText);
+                            editor.putBoolean("status",true);
                             editor.apply();
 
                         }

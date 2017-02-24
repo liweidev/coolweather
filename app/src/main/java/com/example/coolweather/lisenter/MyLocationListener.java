@@ -1,8 +1,18 @@
 package com.example.coolweather.lisenter;
 
+import android.content.Intent;
+import android.text.TextUtils;
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
+import com.example.coolweather.app.MyApplication;
+import com.example.coolweather.bean.County;
+import com.example.coolweather.constant.Constant;
 import com.example.coolweather.utils.LogUtils;
+
+import org.litepal.crud.DataSupport;
+
+import java.util.List;
 
 /**
  * Created by liwei on 2017/2/21.
@@ -108,13 +118,46 @@ public class MyLocationListener implements BDLocationListener{
             String countryName=location.getCountry();
             //定位省
             String provinceName = location.getProvince();
+            provinceName=provinceName.substring(0,provinceName.length()-1);
             //定位市
             String cityName=location.getCity();
+            cityName=cityName.substring(0,cityName.length()-1);
             //定位区
             String districtName = location.getDistrict();
+            districtName=districtName.substring(0,districtName.length()-1);
             sb.append(locationTime+"\n"+countryName+"\n"+provinceName+"\n"+cityName+"\n"+districtName);
             LogUtils.d("BaiduLocationTest",sb.toString());
             //ToastUtils.showToast(sb.toString());
+
+            /*//查询省代码
+            List<Province> provinceList = DataSupport.where("provinceName=?", provinceName).find(Province.class);
+            if(provinceList.size()>0){
+                Province province = provinceList.get(0);
+                int provinceCode = province.getProvinceCode();
+                LogUtils.d("BaiduLocationTest","provinceCode="+provinceCode);
+            }
+
+            //查询市代码
+            List<City> cityList = DataSupport.where("cityName=?", cityName).find(City.class);
+            if(cityList.size()>0){
+                int cityCode = cityList.get(0).getCityCode();
+                LogUtils.d("BaiduLocationTest","cityCode="+cityCode);
+            }*/
+            //查询区代码
+            List<County> countyList = DataSupport.where("countyName=?", districtName).find(County.class);
+            if(countyList.size()>0){
+                String weatherId = countyList.get(0).getWeatherId();
+                LogUtils.d("BaiduLocationTest","weatherId="+weatherId);
+                if(!TextUtils.isEmpty(weatherId)){
+                    //TODO 发送广播
+                    Intent intent=new Intent(Constant.LOCATION_SUCCEE_BROADCASTRECEIVER);
+                    intent.putExtra("weatherId",weatherId);
+                    intent.putExtra("countyName",districtName);
+                    MyApplication.getContext().sendBroadcast(intent);
+                }
+            }
+
+
         }
 
 
