@@ -10,12 +10,16 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,6 +31,7 @@ import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.constant.Constant;
+import com.example.coolweather.fragment.ChooseAreaFragment;
 import com.example.coolweather.gson.Forecast;
 import com.example.coolweather.gson.Weather;
 import com.example.coolweather.lisenter.ImagePathLisenter;
@@ -42,6 +47,7 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -107,8 +113,18 @@ public class WeatherActivity extends MyBaseActivity {
     Button navButton;
     @BindView(R.id.drawer_layout)
     public DrawerLayout drawerLayout;
+    @BindView(R.id.navigation_view)
+    NavigationView navigationView;
     private String weatherId;
     LocationSucceeBroadcastReceiver locationSucceeBroadcastReceiver;
+    /**
+     * 头像
+     */
+    private CircleImageView avarta;
+    /**
+     * 登录状态
+     */
+    private Button loginState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,10 +161,10 @@ public class WeatherActivity extends MyBaseActivity {
      * 注册广播监听器
      */
     private void registeReceiver() {
-        locationSucceeBroadcastReceiver=new LocationSucceeBroadcastReceiver();
-        IntentFilter filter=new IntentFilter();
+        locationSucceeBroadcastReceiver = new LocationSucceeBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
         filter.addAction(Constant.LOCATION_SUCCEE_BROADCASTRECEIVER);
-        registerReceiver(locationSucceeBroadcastReceiver,filter);
+        registerReceiver(locationSucceeBroadcastReceiver, filter);
     }
 
     /**
@@ -161,11 +177,51 @@ public class WeatherActivity extends MyBaseActivity {
             requestWeather(weatherId);
         });
 
-        navButton.setOnClickListener((v)->{
+        navButton.setOnClickListener((v) -> {
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
+        //navigationView.setCheckedItem(R.id.hand_update);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.hand_update:
+                        //ToastUtils.showToast("手动更新");
+                        FragmentManager manager = getSupportFragmentManager();
+                        FragmentTransaction bt = manager.beginTransaction();
+                        bt.replace(R.id.navigation_view,new ChooseAreaFragment());
+                        bt.addToBackStack(null);
+                        bt.commit();
+                        break;
 
+                    case R.id.shard_app:
+                        ToastUtils.showToast("分享程序");
+                        break;
+
+                    case R.id.city_friends:
+                        ToastUtils.showToast("同城约吧");
+                        break;
+
+                    case R.id.with_us:
+                        ToastUtils.showToast("关于我们");
+                        break;
+
+
+                }
+                return true;
+            }
+        });
+
+        View headView = navigationView.getHeaderView(0);
+        avarta= (CircleImageView) headView.findViewById(R.id.civ_head);
+        avarta.setOnClickListener((v)->{
+            ToastUtils.showToast("点击了头像");
+        });
+        loginState=(Button)headView.findViewById(R.id.login_state);
+        loginState.setOnClickListener((v)->{
+            ToastUtils.showToast("点击了登录按钮");
+        });
     }
 
     /**
@@ -215,7 +271,7 @@ public class WeatherActivity extends MyBaseActivity {
      * @param weatherId
      */
     public void requestWeather(String weatherId) {
-        this.weatherId=weatherId;
+        this.weatherId = weatherId;
         String weatherUrl = "http://guolin.tech/api/weather?cityid="
                 + weatherId + "&key=666db77849ad443fb81f94ac03b7ad42";
         HttpUtils.sendHttpRequest(weatherUrl, new Callback() {
@@ -295,19 +351,19 @@ public class WeatherActivity extends MyBaseActivity {
         carWashText.setText("洗车指数:" + weather.suggestion.carWash.level + "\n" + weather.suggestion.carWash.info);
         ultravioletText.setText("紫外线强度:" + weather.suggestion.ultraviolet.level + "\n" + weather.suggestion.ultraviolet.info);
         weatherLayout.setVisibility(View.VISIBLE);
-        if(weather!=null&&weather.status.equals("ok")){
-            final Intent intent=new Intent(this, AutoUpdateService.class);
-            intent.putExtra("cityName",cityName);//大兴
-            intent.putExtra("weatherInfo",weatherInfo);//晴
-            intent.putExtra("degree",degree);//8℃
-            intent.putExtra("windLevel",windLevel);//西南风  4-5级
+        if (weather != null && weather.status.equals("ok")) {
+            final Intent intent = new Intent(this, AutoUpdateService.class);
+            intent.putExtra("cityName", cityName);//大兴
+            intent.putExtra("weatherInfo", weatherInfo);//晴
+            intent.putExtra("degree", degree);//8℃
+            intent.putExtra("windLevel", windLevel);//西南风  4-5级
 
 
             NotificationUtils.getImagePathFromCatch(imageCodeUrl, new ImagePathLisenter() {
                 @Override
                 public void sendImagePath(String imagepath) {
-                    runOnUiThread(()->{
-                        intent.putExtra("imageCodeUrl",imagepath);//图片地址
+                    runOnUiThread(() -> {
+                        intent.putExtra("imageCodeUrl", imagepath);//图片地址
                         startService(intent);
                     });
                 }
@@ -320,7 +376,7 @@ public class WeatherActivity extends MyBaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         ActivityUtils.removeAllActivity();
-        if(locationSucceeBroadcastReceiver!=null){
+        if (locationSucceeBroadcastReceiver != null) {
             unregisterReceiver(locationSucceeBroadcastReceiver);
         }
     }
@@ -328,18 +384,18 @@ public class WeatherActivity extends MyBaseActivity {
     /**
      * 定位成功自动获取位置更新天气信息
      */
-    class LocationSucceeBroadcastReceiver extends BroadcastReceiver{
+    class LocationSucceeBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String locationWeatherId = intent.getStringExtra("weatherId");
             String countyName = intent.getStringExtra("countyName");
-            if(!TextUtils.isEmpty(locationWeatherId)){
-                AlertDialog.Builder dialog=new AlertDialog.Builder(WeatherActivity.this);
+            if (!TextUtils.isEmpty(locationWeatherId)) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(WeatherActivity.this);
                 dialog.setTitle("定位成功");
-                dialog.setMessage("是否获取当前位置天气-"+countyName);
+                dialog.setMessage("是否获取当前位置天气-" + countyName);
                 dialog.setCancelable(false);
-                dialog.setNegativeButton("取消",null);
+                dialog.setNegativeButton("取消", null);
                 dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

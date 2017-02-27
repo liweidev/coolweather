@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:checkableBehavior="single"
+        >
+        <item
+            android:id="@+id/hand_update"
+            android:title="手动更新"
+            android:icon="@drawable/hand_update"
+            app:showAsAction="always"/>
+        <item
+            android:id="@+id/shard_app"
+            android:title="分享程序"
+            android:icon="@drawable/shared_app"
+            app:showAsAction="always"/>
+        <item
+            android:id="@+id/city_friends"
+            android:title="同城约吧"
+            android:icon="@drawable/city_friends"
+            app:showAsAction="always"/>
+        <item
+            android:id="@+id/with_us"
+            android:title="关于我们"
+            android:icon="@drawable/with_us"
+            app:showAsAction="always"/>
+
+    </group>
+</menu>
