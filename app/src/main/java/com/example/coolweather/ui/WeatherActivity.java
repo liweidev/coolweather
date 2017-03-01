@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
+import com.example.coolweather.app.MyApplication;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.constant.Constant;
 import com.example.coolweather.fragment.ChooseAreaFragment;
@@ -44,9 +45,13 @@ import com.example.coolweather.utils.NotificationUtils;
 import com.example.coolweather.utils.ToastUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.smssdk.EventHandler;
+import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.RegisterPage;
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -220,8 +225,32 @@ public class WeatherActivity extends MyBaseActivity {
         });
         loginState=(Button)headView.findViewById(R.id.login_state);
         loginState.setOnClickListener((v)->{
-            ToastUtils.showToast("点击了登录按钮");
+            showRegist();
         });
+    }
+
+    /**
+     * 打开短信验证注册界面
+     */
+    private void showRegist() {
+        //打开注册页面
+        RegisterPage registerPage = new RegisterPage();
+        registerPage.setRegisterCallback(new EventHandler() {
+            public void afterEvent(int event, int result, Object data) {
+                // 解析注册结果
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    @SuppressWarnings("unchecked")
+                    HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
+                    String country = (String) phoneMap.get("country");
+                    String phone = (String) phoneMap.get("phone");
+
+                    // 提交用户信息（此方法可以不调用）
+                    //registerUser(country, phone);
+                    LogUtils.d("phone",phone);
+                }
+            }
+        });
+        registerPage.show(MyApplication.getContext());
     }
 
     /**
