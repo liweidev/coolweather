@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,6 +46,8 @@ import com.example.coolweather.utils.LogUtils;
 import com.example.coolweather.utils.NotificationUtils;
 import com.example.coolweather.utils.ToastUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -458,8 +462,21 @@ public class WeatherActivity extends MyBaseActivity {
         oks.setTitleUrl("https://www.baidu.com");
         // text是分享文本，所有平台都需要这个字段
         oks.setText("当你真正使用酷欧天气软件时，你发现它不止是一款天气软件！");
+        try{
+            File file=new File("/sdcard/test.jpg");
+            if(file.exists()){
+                file.delete();
+            }
+            file.createNewFile();
+            FileOutputStream outputStream=new FileOutputStream(file);
+            Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.mipmap.logo);
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,outputStream);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-        //oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
+        oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
         // url仅在微信（包括好友和朋友圈）中使用
         oks.setUrl("http://sharesdk.cn");
         // comment是我对这条分享的评论，仅在人人网和QQ空间使用

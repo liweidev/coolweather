@@ -39,7 +39,7 @@ public class MainActivity extends MyBaseActivity {
         getLocationInfos();
         //检查权限
         checkPermison(Manifest.permission.ACCESS_FINE_LOCATION);
-
+        checkPermison(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if(permisonList.size()>0){
             //需要申请权限
             String[] permisons=permisonList.toArray(new String[permisonList.size()]);
