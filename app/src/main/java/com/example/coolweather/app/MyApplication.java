@@ -5,8 +5,6 @@ import android.content.Context;
 
 import org.litepal.LitePal;
 
-import cn.smssdk.SMSSDK;
-
 /**
  * Created by liwei on 2017/2/21.
  */
@@ -20,7 +18,8 @@ public class MyApplication extends Application{
         super.onCreate();
         mContext=getApplicationContext();
         LitePal.initialize(mContext);
-        SMSSDK.initSDK(this, "1bb63ed9d8400", "71e61ef9186c11261c0898663667bd58");
+
+
     }
 
     /**
