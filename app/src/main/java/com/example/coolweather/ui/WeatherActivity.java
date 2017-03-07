@@ -1,20 +1,32 @@
 package com.example.coolweather.ui;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -28,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
@@ -66,6 +79,14 @@ import okhttp3.Response;
 
 public class WeatherActivity extends MyBaseActivity {
 
+    /**
+     * 照相
+     */
+    private static final int TAKE_PHOTO = 0;
+    /**
+     * 打开系统图库
+     */
+    private static final int OPEN_ALBUM = 1;
     @BindView(R.id.title_city)
     TextView titleCity;
     @BindView(R.id.title_update_time)
@@ -136,6 +157,8 @@ public class WeatherActivity extends MyBaseActivity {
      * 登录状态
      */
     private Button loginState;
+    private String[] items=new String[]{"相机拍照","系统图库","取消"};
+    private Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +192,19 @@ public class WeatherActivity extends MyBaseActivity {
             Glide.with(this).load(bingPic).into(bingPicImg);
         } else {
             loadBingPic();
+        }
+
+        loadAlbum();
+    }
+
+    /**
+     * 加载头像
+     */
+    private void loadAlbum() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String imagePath = sp.getString("imagePath", null);
+        if(imagePath!=null){
+            Glide.with(this).load(imagePath).into(avarta);
         }
     }
 
@@ -221,8 +257,6 @@ public class WeatherActivity extends MyBaseActivity {
                     case R.id.with_us:
                         ToastUtils.showToast("关于我们");
                         break;
-
-
                 }
                 return true;
             }
@@ -231,12 +265,63 @@ public class WeatherActivity extends MyBaseActivity {
         View headView = navigationView.getHeaderView(0);
         avarta= (CircleImageView) headView.findViewById(R.id.civ_head);
         avarta.setOnClickListener((v)->{
-            ToastUtils.showToast("点击了头像");
+            //ToastUtils.showToast("点击了头像");
+            //检查权限
+            if(ContextCompat.checkSelfPermission(WeatherActivity.this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(WeatherActivity.this,new String[]{Manifest.permission.CAMERA},2);
+            }else {
+                selectAlbum();
+            }
+
         });
         loginState=(Button)headView.findViewById(R.id.login_state);
         loginState.setOnClickListener((v)->{
             showRegist();
         });
+    }
+
+    /**
+     * 选择头像
+     */
+    private void selectAlbum() {
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i){
+                    case 0://相机拍照
+                        //ToastUtils.showToast("相机拍照");
+                        //判断是否有SD卡
+                        if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                            ToastUtils.showToast("请检查SD卡状态");
+                            return;
+                        }
+                        try{
+                            File imageFile=new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),System.currentTimeMillis()+"album.jpg");
+                            imageUri=Uri.fromFile(imageFile);
+                            if(imageFile.exists()){
+                                imageFile.delete();
+                            }
+                            imageFile.createNewFile();
+                            Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+                            startActivityForResult(intent,TAKE_PHOTO);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 1://系统图库
+                        //ToastUtils.showToast("系统图库");
+                        Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/*");
+                        startActivityForResult(intent,OPEN_ALBUM);
+                        break;
+                    case 2:
+                        break;
+                }
+            }
+        });
+        builder.show();
     }
 
     /**
@@ -488,5 +573,113 @@ public class WeatherActivity extends MyBaseActivity {
         // 启动分享GUI
         oks.show(this);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case 2:
+                if(grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    selectAlbum();
+                }else {
+                    ToastUtils.showToast("拒绝权限无法使用拍照功能");
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case TAKE_PHOTO://拍照
+                if(resultCode==RESULT_OK){
+                    //TODO 此处还应该将本地路径上传到服务器
+                    LogUtils.d("imagePath",imageUri.getPath());
+                    Glide.with(this).load(imageUri).into(avarta);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                    editor.putString("imagePath",imageUri.getPath());
+                    editor.apply();
+                }
+                break;
+            case OPEN_ALBUM://打开系统图库
+                if(RESULT_OK==resultCode){
+                    // 判断手机系统版本号
+                    if (Build.VERSION.SDK_INT >= 19) {
+                    // 4.4及以上系统使用这个方法处理图片
+                        handleImageOnKitKat(data);
+                    } else {
+                    // 4.4以下系统使用这个方法处理图片
+                        handleImageBeforeKitKat(data);
+                    }
+                }
+                break;
+        }
+    }
+
+    @TargetApi(19)
+    private void handleImageOnKitKat(Intent data) {
+        String imagePath = null;
+        Uri uri = data.getData();
+        //Log.d("TAG", "handleImageOnKitKat: uri is " + uri);
+        if (DocumentsContract.isDocumentUri(this, uri)) {
+        // 如果是document类型的Uri，则通过document id处理
+            String docId = DocumentsContract.getDocumentId(uri);
+            if("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1]; // 解析出数字格式的id
+                String selection = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+        // 如果是content类型的Uri，则使用普通方式处理
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        // 如果是file类型的Uri，直接获取图片路径即可
+            imagePath = uri.getPath();
+        }
+        displayImage(imagePath); // 根据图片路径显示图片
+    }
+
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
+        displayImage(imagePath);
+    }
+
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
+        // 通过Uri和selection来获取真实的图片路径
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+            cursor.close();
+        }
+        return path;
+    }
+
+    /**
+     * 显示图片
+     * @param imagePath
+     */
+    private void displayImage(String imagePath) {
+        if (imagePath != null) {
+            //TODO 此处应该把本地路径上传到服务器
+            Glide.with(this).load(imagePath).into(avarta);
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putString("imagePath",imagePath);
+            editor.apply();
+            LogUtils.d("imagePath",imagePath);
+        } else {
+            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
 }
