@@ -46,6 +46,7 @@ import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
 import com.example.coolweather.app.MyApplication;
 import com.example.coolweather.base.MyBaseActivity;
+import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.constant.Constant;
 import com.example.coolweather.fragment.ChooseAreaFragment;
 import com.example.coolweather.gson.Forecast;
@@ -56,6 +57,7 @@ import com.example.coolweather.utils.ActivityUtils;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.LogUtils;
+import com.example.coolweather.utils.NetworkUtils;
 import com.example.coolweather.utils.NotificationUtils;
 import com.example.coolweather.utils.ToastUtils;
 
@@ -66,6 +68,9 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.SaveListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 import cn.smssdk.EventHandler;
@@ -165,6 +170,8 @@ public class WeatherActivity extends MyBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
+        //初始化Bmob SDK
+        Bmob.initialize(this, "f775366ac794e95d11fd821b19d16563");
         //初始化sharesdk
         ShareSDK.initSDK(this);
         //初始化短信验证码
@@ -195,6 +202,41 @@ public class WeatherActivity extends MyBaseActivity {
         }
 
         loadAlbum();
+        login();
+    }
+
+    /**
+     * 登录
+     */
+    private void login() {
+        SharedPreferences loginStatePrs = PreferenceManager.getDefaultSharedPreferences(this);
+        String myPhone = loginStatePrs.getString("myPhone", null);
+        String phone = loginStatePrs.getString("phone", null);
+        if(myPhone!=null){
+            loginState.setText(myPhone);
+            loginState.setEnabled(false);
+        }
+        if(phone!=null){
+            MyUser myUser=new MyUser();
+            myUser.setUsername(phone);
+            myUser.setPassword("123456");
+            if(NetworkUtils.isAvalibale()){
+                myUser.login(new SaveListener<MyUser>() {
+                    @Override
+                    public void done(MyUser myUser, BmobException e) {
+                        if(e==null){
+                            ToastUtils.showToast("登录成功");
+                        }else {
+                            ToastUtils.showToast("登录失败");
+                            loginState.setEnabled(true);
+                        }
+                    }
+                });
+            }else {
+                ToastUtils.showToast("网路异常");
+                loginState.setEnabled(true);
+            }
+        }
     }
 
     /**
@@ -341,7 +383,42 @@ public class WeatherActivity extends MyBaseActivity {
 
                     // 提交用户信息（此方法可以不调用）
                     //registerUser(country, phone);
+                    //15210385317
                     LogUtils.d("phone",phone);
+                    String str1 = phone.substring(0, 4);
+                    String str2 = phone.substring(7, phone.length());
+                    //LogUtils.d("str",str1+":"+str2);
+                    String myPhone=str1+"***"+str2;
+                    MyUser myUser=new MyUser();
+                    myUser.setUsername(phone);
+                    myUser.setPassword("123456");
+                    myUser.setNickName(myPhone);
+                    //判断网络是否可用
+                    if(NetworkUtils.isAvalibale()){
+                        myUser.signUp(new SaveListener<MyUser>() {
+                            @Override
+                            public void done(MyUser myUser, BmobException e) {
+                                if(e==null){
+                                    loginState.setText(myPhone);
+                                    loginState.setEnabled(false);
+                                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                                    editor.putString("myPhone",myPhone);
+                                    editor.putString("phone",phone);
+                                    editor.apply();
+                                    myUser.login(new SaveListener<MyUser>() {
+                                        @Override
+                                        public void done(MyUser myUser, BmobException e) {
+                                            if(e==null){
+                                                ToastUtils.showToast("登录成功");
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }else{
+                        ToastUtils.showToast("网络异常");
+                    }
                 }
             }
         });
