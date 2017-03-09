@@ -32,6 +32,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +55,7 @@ import com.example.coolweather.gson.Weather;
 import com.example.coolweather.lisenter.ImagePathLisenter;
 import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.utils.ActivityUtils;
+import com.example.coolweather.utils.DialogUtils;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;
 import com.example.coolweather.utils.LogUtils;
@@ -65,12 +67,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
+import cn.bmob.v3.listener.UploadFileListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 import cn.smssdk.EventHandler;
@@ -203,6 +212,7 @@ public class WeatherActivity extends MyBaseActivity {
 
         loadAlbum();
         login();
+        //LogUtils.d("myUser.Album.FileUrl",BmobUser.getCurrentUser(MyUser.class).getAlbum().getFileUrl());
     }
 
     /**
@@ -247,6 +257,18 @@ public class WeatherActivity extends MyBaseActivity {
         String imagePath = sp.getString("imagePath", null);
         if(imagePath!=null){
             Glide.with(this).load(imagePath).into(avarta);
+        }else{
+            //去服务器获取头像
+            MyUser myUser = BmobUser.getCurrentUser(MyUser.class);
+            if(myUser!=null){
+                BmobFile bmobFile = myUser.getAlbum();
+                if(bmobFile!=null){
+                    String fileUrl=bmobFile.getFileUrl();
+                    if(fileUrl!=null){
+                        Glide.with(this).load(fileUrl).into(avarta);
+                    }
+                }
+            }
         }
     }
 
@@ -312,7 +334,12 @@ public class WeatherActivity extends MyBaseActivity {
             if(ContextCompat.checkSelfPermission(WeatherActivity.this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(WeatherActivity.this,new String[]{Manifest.permission.CAMERA},2);
             }else {
-                selectAlbum();
+                if(loginState.isEnabled()){
+                    ToastUtils.showToast("请先注册");
+
+                }else{
+                    selectAlbum();
+                }
             }
 
         });
@@ -380,7 +407,6 @@ public class WeatherActivity extends MyBaseActivity {
                     HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
                     String country = (String) phoneMap.get("country");
                     String phone = (String) phoneMap.get("phone");
-
                     // 提交用户信息（此方法可以不调用）
                     //registerUser(country, phone);
                     //15210385317
@@ -389,36 +415,74 @@ public class WeatherActivity extends MyBaseActivity {
                     String str2 = phone.substring(7, phone.length());
                     //LogUtils.d("str",str1+":"+str2);
                     String myPhone=str1+"***"+str2;
-                    MyUser myUser=new MyUser();
-                    myUser.setUsername(phone);
-                    myUser.setPassword("123456");
-                    myUser.setNickName(myPhone);
-                    //判断网络是否可用
-                    if(NetworkUtils.isAvalibale()){
-                        myUser.signUp(new SaveListener<MyUser>() {
-                            @Override
-                            public void done(MyUser myUser, BmobException e) {
-                                if(e==null){
-                                    loginState.setText(myPhone);
-                                    loginState.setEnabled(false);
-                                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                                    editor.putString("myPhone",myPhone);
-                                    editor.putString("phone",phone);
-                                    editor.apply();
+                    //去服务器查询当前用户是否存在
+                    BmobQuery<MyUser> query=new BmobQuery<MyUser>();
+                    query.addWhereEqualTo("username",phone);
+                    query.findObjects(new FindListener<MyUser>() {
+                        @Override
+                        public void done(List<MyUser> list, BmobException e) {
+                            if(e==null){
+                                if(list.size()>0){
+                                    //查到了该用户
+                                    MyUser myUser=new MyUser();
+                                    myUser.setUsername(phone);
+                                    myUser.setPassword("123456");
                                     myUser.login(new SaveListener<MyUser>() {
                                         @Override
                                         public void done(MyUser myUser, BmobException e) {
                                             if(e==null){
                                                 ToastUtils.showToast("登录成功");
+                                                loginState.setText(myPhone);
+                                                loginState.setEnabled(false);
+                                                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                                                editor.putString("myPhone",myPhone);
+                                                editor.putString("phone",phone);
+                                                editor.apply();
                                             }
                                         }
                                     });
+                                }else{
+                                    //没查到，注册
+                                    MyUser myUser=new MyUser();
+                                    myUser.setUsername(phone);
+                                    myUser.setPassword("123456");
+                                    myUser.setNickName(myPhone);
+                                    //判断网络是否可用
+                                    if(NetworkUtils.isAvalibale()){
+                                        myUser.signUp(new SaveListener<MyUser>() {
+                                            @Override
+                                            public void done(MyUser myUser, BmobException e) {
+                                                if(e==null){
+                                                    loginState.setText(myPhone);
+                                                    loginState.setEnabled(false);
+                                                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                                                    editor.putString("myPhone",myPhone);
+                                                    editor.putString("phone",phone);
+                                                    editor.apply();
+                                                    myUser.login(new SaveListener<MyUser>() {
+                                                        @Override
+                                                        public void done(MyUser myUser, BmobException e) {
+                                                            if(e==null){
+                                                                ToastUtils.showToast("登录成功");
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }else{
+                                        ToastUtils.showToast("网络异常");
+                                    }
                                 }
                             }
-                        });
-                    }else{
-                        ToastUtils.showToast("网络异常");
-                    }
+                        }
+                    });
+
+
+                    /*MyUser myUser=new MyUser();
+                    myUser.setUsername(phone);
+                    myUser.setPassword("123456");
+                    myUser.setNickName(myPhone);*/
                 }
             }
         });
@@ -673,11 +737,64 @@ public class WeatherActivity extends MyBaseActivity {
             case TAKE_PHOTO://拍照
                 if(resultCode==RESULT_OK){
                     //TODO 此处还应该将本地路径上传到服务器
-                    LogUtils.d("imagePath",imageUri.getPath());
-                    Glide.with(this).load(imageUri).into(avarta);
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                    editor.putString("imagePath",imageUri.getPath());
-                    editor.apply();
+                    DialogUtils.showDialog("正在上传头像...",this);
+                    if(!NetworkUtils.isAvalibale()){
+                        ToastUtils.showToast("网络不可用,上传头像失败");
+                        DialogUtils.dissmissDialog();
+                        return;
+                    }
+                    File file=new File(imageUri.getPath());
+                    new Thread(()->{
+                        boolean isBreak=true;
+                        while (isBreak){
+                            if(file.length()!=0){
+                                isBreak=false;
+                                //LogUtils.d("fileLength",file.length()+"");
+                                final BmobFile bmobFile=new BmobFile(new File(imageUri.getPath()));
+                                bmobFile.uploadblock(new UploadFileListener() {
+                                    @Override
+                                    public void done(BmobException e) {
+                                        if(e==null){
+                                            //Log.d("tag","成功:"+fileUrl);
+                                            DialogUtils.dissmissDialog();
+                                            ToastUtils.showToast("上传成功");
+                                            //将头像保存到本地
+                                            Glide.with(WeatherActivity.this).load(imageUri).into(avarta);
+                                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                                            editor.putString("imagePath",imageUri.getPath());
+                                            editor.apply();
+                                            //更新MyUser头像
+                                            //String fileUrl = bmobFile.getFileUrl();
+                                            MyUser myUser= BmobUser.getCurrentUser(MyUser.class);
+                                            if(myUser!=null){
+                                                MyUser user=new MyUser();
+                                                user.setAlbum(bmobFile);
+                                                user.update(myUser.getObjectId(), new UpdateListener() {
+                                                    @Override
+                                                    public void done(BmobException e) {
+                                                        if(e==null){
+                                                            LogUtils.d("myUser","数据保存成功");
+                                                        }else{
+                                                            LogUtils.d("myUser","数据保存失败");
+                                                            ToastUtils.showToast("保存失败");
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+                                        }else{
+                                            Log.d("tag","失败");
+                                            e.printStackTrace();
+                                            DialogUtils.dissmissDialog();
+                                            ToastUtils.showToast("上传失败");
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
+
+
                 }
                 break;
             case OPEN_ALBUM://打开系统图库
@@ -747,11 +864,46 @@ public class WeatherActivity extends MyBaseActivity {
     private void displayImage(String imagePath) {
         if (imagePath != null) {
             //TODO 此处应该把本地路径上传到服务器
-            Glide.with(this).load(imagePath).into(avarta);
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            editor.putString("imagePath",imagePath);
-            editor.apply();
             LogUtils.d("imagePath",imagePath);
+            if(!NetworkUtils.isAvalibale()){
+                ToastUtils.showToast("当前网络不可用");
+                return;
+            }
+            DialogUtils.showDialog("正在上传",this);
+            BmobFile bmobFile=new BmobFile(new File(imagePath));
+            bmobFile.uploadblock(new UploadFileListener() {
+                @Override
+                public void done(BmobException e) {
+                    if(e==null){
+                        MyUser myUser = BmobUser.getCurrentUser(MyUser.class);
+                        if(myUser!=null){
+                            MyUser user=new MyUser();
+                            user.setAlbum(bmobFile);
+                            user.update(myUser.getObjectId(), new UpdateListener() {
+                                @Override
+                                public void done(BmobException e) {
+                                    if(e==null){
+                                        Glide.with(WeatherActivity.this).load(imagePath).into(avarta);
+                                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                                        editor.putString("imagePath",imagePath);
+                                        editor.apply();
+                                        DialogUtils.dissmissDialog();
+                                        ToastUtils.showToast("图片上传成功");
+                                    }else{
+                                        ToastUtils.showToast("图片上传失败");
+                                        DialogUtils.dissmissDialog();
+                                    }
+                                }
+                            });
+                        }else{
+                            DialogUtils.dissmissDialog();
+                        }
+                    }else{
+                        DialogUtils.dissmissDialog();
+                    }
+                }
+            });
+
         } else {
             Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
         }
