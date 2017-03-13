@@ -39,6 +39,20 @@ public class Post extends BmobObject implements Serializable{
      */
     private Integer stamp;
 
+    /**
+     * 评论数量
+     */
+    private Integer commnetCount;
+
+    public void setCommnetCount(Integer commnetCount) {
+        this.commnetCount = commnetCount;
+    }
+
+    public Integer getCommnetCount() {
+
+        return commnetCount;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

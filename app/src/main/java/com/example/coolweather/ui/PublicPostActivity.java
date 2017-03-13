@@ -14,9 +14,17 @@ import android.widget.TextView;
 
 import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
+import com.example.coolweather.bean.bmob_bean.MyUser;
+import com.example.coolweather.bean.bmob_bean.Post;
+import com.example.coolweather.utils.DialogUtils;
+import com.example.coolweather.utils.NetworkUtils;
+import com.example.coolweather.utils.ToastUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.SaveListener;
 
 /**
  * 发布帖子界面
@@ -56,6 +64,7 @@ public class PublicPostActivity extends MyBaseActivity implements View.OnClickLi
      */
     private void initLisenter() {
         imageBack.setOnClickListener(this);
+        tvPublic.setOnClickListener(this);
     }
 
     @Override
@@ -93,6 +102,43 @@ public class PublicPostActivity extends MyBaseActivity implements View.OnClickLi
                     finish();
                 }
                 break;
+
+            case R.id.tv_public:
+                if(!NetworkUtils.isAvalibale()){
+                    ToastUtils.showToast("网络异常");
+                    return;
+                }
+                if(TextUtils.isEmpty(etText.getText().toString())){
+                    ToastUtils.showToast("亲，再多写一点吧");
+                    return;
+                }
+                if(etText.getText().toString().length()>300){
+                    ToastUtils.showToast("亲，文字太多了");
+                    return;
+                }
+                DialogUtils.showDialog("正在提交",PublicPostActivity.this);
+                Post post=new Post();
+                post.setContent(etText.getText().toString());
+                post.setAuthor(BmobUser.getCurrentUser(MyUser.class));
+                post.setCommnetCount(0);
+                post.setFavour(0);
+                post.setStamp(0);
+                post.save(new SaveListener<String>() {
+                    @Override
+                    public void done(String s, BmobException e) {
+                        if(e==null){
+                            DialogUtils.dissmissDialog();
+                            ToastUtils.showToast("发布成功");
+                            finish();
+                        }else{
+                            ToastUtils.showToast("发布失败");
+                            DialogUtils.dissmissDialog();
+                            return;
+                        }
+                    }
+                });
+                break;
+
         }
     }
 }

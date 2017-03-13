@@ -1,10 +1,13 @@
 package com.example.coolweather.ui;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -17,6 +20,7 @@ import com.example.coolweather.utils.LogUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+
 
 /**
  * 段子主界面
@@ -33,6 +37,9 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
     RadioGroup rgSelect;
     @BindView(R.id.image_edit)
     ImageView imageEdit;
+    @BindView(R.id.fab_refresh)
+    FloatingActionButton fabRefresh;
+    private ObjectAnimator animator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +61,23 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
      */
     private void initLisenter() {
         imageEdit.setOnClickListener(this);
+        fabRefresh.setOnClickListener(this);
     }
 
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.image_edit:
-                startActivity(new Intent(this,PublicPostActivity.class));
+                startActivity(new Intent(this, PublicPostActivity.class));
+                break;
+
+            case R.id.fab_refresh:
+                animator=ObjectAnimator.ofFloat(fabRefresh,"rotation",0f,-360f);
+                animator.setRepeatCount(-1);
+                animator.setInterpolator(new LinearInterpolator());
+                animator.setAutoCancel(true);
+                animator.setDuration(500).start();
                 break;
         }
     }
