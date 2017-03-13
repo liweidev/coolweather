@@ -8,4 +8,5 @@
     <string name="load_weather_error">获取天气信息失败...</string>
     <string name="load_bing_error">获取背景图失败...</string>
     <string name="auto_update_weather_error">后台更新服务器失败</string>
+    <string name="edit_hint">您的粉丝第一时间会看到您的投稿，请严肃对待哦！我们的目标是：专注搞笑，拒绝黄赌毒！可以矫情，不可以煽情！警告：发布色情内容会被封号处理。</string>
 </resources>

@@ -173,6 +173,10 @@ public class WeatherActivity extends MyBaseActivity {
     private Button loginState;
     private String[] items=new String[]{"相机拍照","系统图库","取消"};
     private Uri imageUri;
+    /**
+     * 头像地址
+     */
+    private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,7 +258,7 @@ public class WeatherActivity extends MyBaseActivity {
      */
     private void loadAlbum() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String imagePath = sp.getString("imagePath", null);
+        imagePath = sp.getString("imagePath", null);
         if(imagePath!=null){
             Glide.with(this).load(imagePath).into(avarta);
         }else{
@@ -315,7 +319,18 @@ public class WeatherActivity extends MyBaseActivity {
                         break;
 
                     case R.id.city_friends:
-                        ToastUtils.showToast("同城约吧");
+                        //ToastUtils.showToast("同城约吧");
+                        MyUser myUser = BmobUser.getCurrentUser(MyUser.class);
+                        if(myUser!=null){
+                            ToastUtils.showToast("进入同城约吧");
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                            Intent intent=new Intent(WeatherActivity.this,AboutActivity.class);
+                            //intent.putExtra("imagePath",imagePath);
+                            startActivity(intent);
+                            //WeatherActivity.this.finish();
+                        }else{
+                            ToastUtils.showToast("请先登录");
+                        }
                         break;
 
                     case R.id.with_us:
@@ -736,7 +751,6 @@ public class WeatherActivity extends MyBaseActivity {
         switch (requestCode){
             case TAKE_PHOTO://拍照
                 if(resultCode==RESULT_OK){
-                    //TODO 此处还应该将本地路径上传到服务器
                     DialogUtils.showDialog("正在上传头像...",this);
                     if(!NetworkUtils.isAvalibale()){
                         ToastUtils.showToast("网络不可用,上传头像失败");
