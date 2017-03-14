@@ -36,10 +36,9 @@ public class AboutFragment extends Fragment {
     RecyclerView recyclerView;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
-
     private AboutAdapter adapter;
     private List<Post> postList = new ArrayList<>();
-
+    private int skip=0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -82,8 +81,9 @@ public class AboutFragment extends Fragment {
         }
         //DialogUtils.showDialog("正在加载", getActivity());
         BmobQuery<Post> query = new BmobQuery<>();
-        query.setLimit(50);
-        query.order("-favour");
+        query.setSkip(skip);
+        query.setLimit(20);
+        query.order("-createdAt");
         // 希望在查询帖子信息的同时也把发布人的信息查询出来
         query.include("author,userList");
         query.findObjects(new FindListener<Post>() {
@@ -98,6 +98,10 @@ public class AboutFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                     if(lisenter!=null){
                         lisenter.onSuccess();
+                    }
+                    skip+=20;
+                    if(list.size()==0){
+                        ToastUtils.showToast("暂无段子可浏览...");
                     }
                 } else {
                     ToastUtils.showToast("加载失败");
