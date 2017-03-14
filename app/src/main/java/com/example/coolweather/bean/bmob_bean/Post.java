@@ -1,6 +1,7 @@
 package com.example.coolweather.bean.bmob_bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 import cn.bmob.v3.BmobObject;
 import cn.bmob.v3.datatype.BmobFile;
@@ -43,6 +44,20 @@ public class Post extends BmobObject implements Serializable{
      * 评论数量
      */
     private Integer commnetCount;
+
+    /**
+     * 喜欢帖子的用户
+     */
+    private List<MyUser> userList;
+
+    public void setUserList(List<MyUser> userList) {
+        this.userList = userList;
+    }
+
+    public List<MyUser> getUserList() {
+
+        return userList;
+    }
 
     public void setCommnetCount(Integer commnetCount) {
         this.commnetCount = commnetCount;

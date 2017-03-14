@@ -88,7 +88,9 @@ public class ChooseAreaFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         adapter=new ChooseAreaAdapter(dataList, getActivity());
-        listView.setAdapter(adapter);
+        if(adapter!=null){
+            listView.setAdapter(adapter);
+        }
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {

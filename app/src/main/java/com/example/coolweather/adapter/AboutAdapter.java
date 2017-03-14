@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
+import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.bean.bmob_bean.Post;
 import com.example.coolweather.utils.ToastUtils;
 
@@ -18,19 +19,22 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.UpdateListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by liwei on 2017/3/13.
  */
 
-public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder> implements View.OnClickListener {
+public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder>  {
 
 
     private List<Post> postList = new ArrayList<>();
     private Context mContext;
-
+    private List<MyUser> userList=new ArrayList<>();
     public AboutAdapter(List<Post> postList, Context mContext) {
         this.postList = postList;
         this.mContext = mContext;
@@ -55,9 +59,94 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
         holder.tvStamp.setText(post.getStamp()+"");
         holder.tvComment.setText(post.getCommnetCount()+"");
 
-        holder.llFavour.setOnClickListener(this);
-        holder.llStamp.setOnClickListener(this);
-        holder.llComment.setOnClickListener(this);
+        //点赞
+        holder.llFavour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //判断当前用户是否已经点过赞
+                List<MyUser> userList = post.getUserList();
+                if(userList!=null&&userList.size()>0){
+                    for(MyUser myUser:userList){
+                        if(myUser.getObjectId().equals(BmobUser.getCurrentUser(MyUser.class).getObjectId())){
+                            ToastUtils.showToast("您已经顶过了...");
+                            return;
+                        }
+                    }
+                }
+                post.increment("favour");
+                post.update(new UpdateListener() {
+                    @Override
+                    public void done(BmobException e) {
+                        if(e==null){
+                            ToastUtils.showToast("点赞成功");
+                            post.setFavour(post.getFavour()+1);
+                            notifyDataSetChanged();
+                            //将当前用户设置为已经点过赞
+                            userList.clear();
+                            userList.add(BmobUser.getCurrentUser(MyUser.class));
+                            post.setUserList(userList);
+                            post.update(new UpdateListener() {
+                                @Override
+                                public void done(BmobException e) {
+                                    if(e==null){
+                                        ToastUtils.showToast("更新成功");
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+        //踩
+        holder.llStamp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //判断当前用户是否已经点过赞
+                List<MyUser> userList = post.getUserList();
+                if(userList!=null&&userList.size()>0){
+                    for(MyUser myUser:userList){
+                        if(myUser.getObjectId().equals(BmobUser.getCurrentUser(MyUser.class).getObjectId())){
+                            ToastUtils.showToast("您已经顶过了...");
+                            return;
+                        }
+                    }
+                }
+                post.increment("stamp");
+                post.update(new UpdateListener() {
+                    @Override
+                    public void done(BmobException e) {
+                        if(e==null){
+                            ToastUtils.showToast("踩踏成功");
+                            post.setStamp(post.getStamp()+1);
+                            notifyDataSetChanged();
+                            //将当前用户设置为已经点过赞
+                            userList.clear();
+                            userList.add(BmobUser.getCurrentUser(MyUser.class));
+                            post.setUserList(userList);
+                            post.update(new UpdateListener() {
+                                @Override
+                                public void done(BmobException e) {
+                                    if(e==null){
+                                        ToastUtils.showToast("更新成功");
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        });
+        //评论
+        holder.llComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO 进入评论界面
+            }
+        });
     }
 
     @Override
@@ -65,11 +154,12 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
         return postList.size();
     }
 
-    @Override
+    /*@Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.ll_favour://赞
-                ToastUtils.showToast("赞");
+                //ToastUtils.showToast("赞");
+
                 break;
             case R.id.ll_stamp://踩
                 ToastUtils.showToast("踩");
@@ -78,7 +168,7 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
                 ToastUtils.showToast("评论");
                 break;
         }
-    }
+    }*/
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.avatar)

@@ -20,6 +20,8 @@ import com.example.coolweather.utils.DialogUtils;
 import com.example.coolweather.utils.NetworkUtils;
 import com.example.coolweather.utils.ToastUtils;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.bmob.v3.BmobUser;
@@ -123,6 +125,7 @@ public class PublicPostActivity extends MyBaseActivity implements View.OnClickLi
                 post.setCommnetCount(0);
                 post.setFavour(0);
                 post.setStamp(0);
+                post.setUserList(new ArrayList<MyUser>());
                 post.save(new SaveListener<String>() {
                     @Override
                     public void done(String s, BmobException e) {

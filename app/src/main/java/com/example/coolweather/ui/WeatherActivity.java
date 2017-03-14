@@ -291,7 +291,7 @@ public class WeatherActivity extends MyBaseActivity {
      */
     private void initViews() {
 
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setColorSchemeResources(R.color.colorAccent);
         swipeRefresh.setOnRefreshListener(() -> {
             requestWeather(weatherId);
         });
@@ -453,6 +453,7 @@ public class WeatherActivity extends MyBaseActivity {
                                                 editor.putString("myPhone",myPhone);
                                                 editor.putString("phone",phone);
                                                 editor.apply();
+                                                loadAlbum();
                                             }
                                         }
                                     });

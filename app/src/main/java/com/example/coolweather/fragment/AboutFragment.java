@@ -3,6 +3,7 @@ package com.example.coolweather.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +13,7 @@ import android.view.ViewGroup;
 import com.example.coolweather.R;
 import com.example.coolweather.adapter.AboutAdapter;
 import com.example.coolweather.bean.bmob_bean.Post;
-import com.example.coolweather.utils.DialogUtils;
+import com.example.coolweather.lisenter.FloatingButtonLisenter;
 import com.example.coolweather.utils.NetworkUtils;
 import com.example.coolweather.utils.ToastUtils;
 
@@ -33,9 +34,11 @@ public class AboutFragment extends Fragment {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     private AboutAdapter adapter;
-    private List<Post> postList=new ArrayList<>();
+    private List<Post> postList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -48,45 +51,61 @@ public class AboutFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        LinearLayoutManager manager=new LinearLayoutManager(getActivity());
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
-        adapter=new AboutAdapter(postList,getActivity());
+        adapter = new AboutAdapter(postList, getActivity());
         recyclerView.setAdapter(adapter);
+        swipeRefresh.setColorSchemeResources(R.color.colorAccent);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryPost(null);
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        queryPost();
+        queryPost(null);
     }
 
     /**
      * 查询帖子
      */
-    private void queryPost() {
-        if(!NetworkUtils.isAvalibale()){
+    public void queryPost(FloatingButtonLisenter lisenter) {
+        swipeRefresh.setRefreshing(true);
+        if (!NetworkUtils.isAvalibale()) {
             ToastUtils.showToast("当前网络不可用");
             return;
         }
-        DialogUtils.showDialog("正在加载",getActivity());
-        BmobQuery<Post> query=new BmobQuery<>();
+        //DialogUtils.showDialog("正在加载", getActivity());
+        BmobQuery<Post> query = new BmobQuery<>();
         query.setLimit(50);
-        query.order("-updatedAt");
+        query.order("-favour");
         // 希望在查询帖子信息的同时也把发布人的信息查询出来
-        query.include("author");
+        query.include("author,userList");
         query.findObjects(new FindListener<Post>() {
             @Override
             public void done(List<Post> list, BmobException e) {
-                if(e==null){
+                if (e == null) {
                     ToastUtils.showToast("加载成功");
-                    DialogUtils.dissmissDialog();
+                    //DialogUtils.dissmissDialog();
+                    swipeRefresh.setRefreshing(false);
                     postList.clear();
                     postList.addAll(list);
                     adapter.notifyDataSetChanged();
-                }else{
+                    if(lisenter!=null){
+                        lisenter.onSuccess();
+                    }
+                } else {
                     ToastUtils.showToast("加载失败");
-                    DialogUtils.dissmissDialog();
+                    //DialogUtils.dissmissDialog();
+                    swipeRefresh.setRefreshing(false);
+                    if(lisenter!=null){
+                        lisenter.onError();
+                    }
                     return;
                 }
             }
