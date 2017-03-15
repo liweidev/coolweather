@@ -1,6 +1,7 @@
 package com.example.coolweather.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.coolweather.R;
 import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.bean.bmob_bean.Post;
+import com.example.coolweather.ui.CommentActivity;
 import com.example.coolweather.utils.ToastUtils;
 
 import java.util.ArrayList;
@@ -57,6 +59,7 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
         holder.content.setText(post.getContent());
         holder.tvFavour.setText(post.getFavour()+"");
         holder.tvStamp.setText(post.getStamp()+"");
+        holder.tvComment.setText(post.getCommnetCount()+"");
         holder.tvComment.setText(post.getCommnetCount()+"");
 
         //点赞
@@ -144,7 +147,18 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
         holder.llComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO 进入评论界面
+                Intent intent=new Intent(mContext, CommentActivity.class);
+                intent.putExtra("post",post);
+                mContext.startActivity(intent);
+            }
+        });
+        //内容监听
+        holder.content.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(mContext, CommentActivity.class);
+                intent.putExtra("post",post);
+                mContext.startActivity(intent);
             }
         });
     }

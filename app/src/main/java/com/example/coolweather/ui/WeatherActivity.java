@@ -291,7 +291,7 @@ public class WeatherActivity extends MyBaseActivity {
      */
     private void initViews() {
 
-        swipeRefresh.setColorSchemeResources(R.color.colorAccent);
+        //swipeRefresh.setColorSchemeResources(R.color.colorAccent);
         swipeRefresh.setOnRefreshListener(() -> {
             requestWeather(weatherId);
         });

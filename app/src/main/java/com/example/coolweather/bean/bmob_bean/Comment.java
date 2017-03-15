@@ -24,6 +24,11 @@ public class Comment extends BmobObject implements Serializable{
      */
     private Post post;
 
+    /**
+     * 赞
+     */
+    private Integer favour;
+
     public void setContent(String content) {
         this.content = content;
     }
@@ -57,9 +62,6 @@ public class Comment extends BmobObject implements Serializable{
         return favour;
     }
 
-    /**
-     * 赞
-     */
-    private Integer favour;
+
 
 }

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.coolweather.R;
 import com.example.coolweather.adapter.AboutAdapter;
+import com.example.coolweather.bean.bmob_bean.Comment;
 import com.example.coolweather.bean.bmob_bean.Post;
 import com.example.coolweather.lisenter.FloatingButtonLisenter;
 import com.example.coolweather.utils.NetworkUtils;
@@ -62,12 +63,12 @@ public class AboutFragment extends Fragment {
                 queryPost(null);
             }
         });
+        queryPost(null);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        queryPost(null);
     }
 
     /**
@@ -90,11 +91,28 @@ public class AboutFragment extends Fragment {
             @Override
             public void done(List<Post> list, BmobException e) {
                 if (e == null) {
+                    postList.clear();
+                    for(Post post:list){
+                        BmobQuery<Comment> query=new BmobQuery<>();
+                        query.addWhereEqualTo("post",post);
+                        query.findObjects(new FindListener<Comment>() {
+                            @Override
+                            public void done(List<Comment> list, BmobException e) {
+                                if(e==null){
+                                    if(list!=null){
+                                        post.setCommnetCount(list.size());
+                                        postList.add(post);
+                                    }
+                                }
+                            }
+                        });
+                    }
+
                     ToastUtils.showToast("加载成功");
                     //DialogUtils.dissmissDialog();
                     swipeRefresh.setRefreshing(false);
-                    postList.clear();
-                    postList.addAll(list);
+                    /*postList.clear();
+                    postList.addAll(list);*/
                     adapter.notifyDataSetChanged();
                     if(lisenter!=null){
                         lisenter.onSuccess();

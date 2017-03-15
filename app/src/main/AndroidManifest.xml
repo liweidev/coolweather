@@ -136,7 +136,8 @@
             android:exported="true" />
 
         <activity android:name=".ui.AboutActivity" />
-        <activity android:name=".ui.PublicPostActivity"></activity>
+        <activity android:name=".ui.PublicPostActivity" />
+        <activity android:name=".ui.CommentActivity"></activity>
     </application>
 
 </manifest>

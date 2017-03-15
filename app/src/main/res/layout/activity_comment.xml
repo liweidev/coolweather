@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.coolweather.ui.CommentActivity">
+    <include layout="@layout/comment_title"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+        <include layout="@layout/comment_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="bottom"
+            android:background="@drawable/shape_edittext_other"
+            >
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:padding="1dp"
+                android:background="@drawable/shape_edittext"
+                >
+                <EditText
+                    android:id="@+id/et_comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:background="@null"
+                    android:drawableLeft="@drawable/edit_comment"
+                    android:drawablePadding="10dp"
+                    android:hint="期待你的神评"
+                    android:layout_marginLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    />
+            </FrameLayout>
+            <Button
+                android:id="@+id/send"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:text="发送"
+                android:textColor="#FFFFFFFF"
+                android:background="@drawable/selector_comment_button"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="5dp"
+                />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>
