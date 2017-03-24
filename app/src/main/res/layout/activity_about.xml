@@ -10,12 +10,11 @@
     <include
         android:id="@+id/title"
         layout="@layout/about_title"/>
-    <fragment
-        android:id="@+id/about_fragment"
+    <FrameLayout
+        android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/title"
-        android:name="com.example.coolweather.fragment.AboutFragment"
         />
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_refresh"

@@ -57,6 +57,8 @@ public class CommentActivity extends MyBaseActivity implements View.OnClickListe
     private Post post;
     private CommentAdapter adapter;
     private List<Comment>commentList=new ArrayList<>();
+    private String type=null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,6 +137,7 @@ public class CommentActivity extends MyBaseActivity implements View.OnClickListe
      */
     private void getPost() {
         post = (Post) getIntent().getSerializableExtra("post");
+        type=getIntent().getStringExtra("type");
         /*if(post!=null){
             MyUser user = post.getAuthor();
             String content = post.getContent();

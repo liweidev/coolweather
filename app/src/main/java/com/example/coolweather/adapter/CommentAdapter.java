@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -101,7 +102,17 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
                     }
                 }
                 //postContent.setText(content);
-                holder.head_postContent.setText(content);
+                if(post.getType().equals("text")){
+                    holder.head_postContent.setText(content);
+                }else if(post.getType().equals("picture")){
+                    BmobFile image = post.getImage();
+                    if(image!=null){
+                        String fileUrl = image.getFileUrl();
+                        if(fileUrl!=null){
+                            Glide.with(mContext).load(fileUrl).into(holder.head_imageView);
+                        }
+                    }
+                }
             }
         }
     }
@@ -135,7 +146,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
         private TextView head_production;
         //@BindView(R.id.head_post_content)
         private TextView head_postContent;
-
+        private ImageView head_imageView;
         public MyViewHolder(View itemView) {
             super(itemView);
             if (current_type == TYPE_NORMAL) {
@@ -153,6 +164,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MyViewHo
                 head_nickname= (TextView) itemView.findViewById(R.id.head_nickname);
                 head_production= (TextView) itemView.findViewById(R.id.head_production);
                 head_postContent= (TextView) itemView.findViewById(R.id.head_post_content);
+                head_imageView= (ImageView) itemView.findViewById(R.id.imageView);
             }
         }
     }

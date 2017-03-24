@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.coolweather.R;
-import com.example.coolweather.adapter.AboutAdapter;
+import com.example.coolweather.adapter.PicterAdapter;
 import com.example.coolweather.bean.bmob_bean.Comment;
 import com.example.coolweather.bean.bmob_bean.Post;
 import com.example.coolweather.lisenter.FloatingButtonLisenter;
@@ -29,25 +29,25 @@ import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
 
 /**
- * Created by liwei on 2017/3/13.
+ * Created by liwei on 2017/3/24.
+ * 图片Fragment
  */
 
-public class AboutFragment extends Fragment {
+public class PictuerFragment extends Fragment {
 
+    @BindView(R.id.iv_no_data_hint)
+    ImageView ivNoDataHint;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
-    @BindView(R.id.iv_no_data_hint)
-    ImageView ivNoDataHint;
-    private AboutAdapter adapter;
-    private List<Post> postList = new ArrayList<>();
+    private PicterAdapter adapter;
+    private List<Post>postList=new ArrayList<>();
     private int skip = 0;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.about_fragment, container, false);
+        View view = inflater.inflate(R.layout.picture_fragment, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
@@ -58,7 +58,7 @@ public class AboutFragment extends Fragment {
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
-        adapter = new AboutAdapter(postList, getActivity());
+        adapter = new PicterAdapter(getActivity(),postList);
         recyclerView.setAdapter(adapter);
         swipeRefresh.setColorSchemeResources(R.color.colorAccent);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -69,12 +69,6 @@ public class AboutFragment extends Fragment {
         });
         queryPost(null);
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
     /**
      * 查询帖子
      */
@@ -86,9 +80,9 @@ public class AboutFragment extends Fragment {
         }
         //DialogUtils.showDialog("正在加载", getActivity());
         BmobQuery<Post> query = new BmobQuery<>();
-        query.addWhereEqualTo("type","text");
         query.setSkip(skip);
         query.setLimit(20);
+        query.addWhereEqualTo("type","picture");
         query.order("-createdAt");
         // 希望在查询帖子信息的同时也把发布人的信息查询出来
         query.include("author,userList");
@@ -141,4 +135,5 @@ public class AboutFragment extends Fragment {
             }
         });
     }
+
 }

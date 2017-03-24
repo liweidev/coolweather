@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IdRes;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -17,6 +20,7 @@ import com.example.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.fragment.AboutFragment;
+import com.example.coolweather.fragment.PictuerFragment;
 import com.example.coolweather.lisenter.FloatingButtonLisenter;
 import com.example.coolweather.utils.LogUtils;
 
@@ -30,7 +34,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * 段子主界面
  */
-public class AboutActivity extends MyBaseActivity implements View.OnClickListener,FloatingButtonLisenter {
+public class AboutActivity extends MyBaseActivity implements View.OnClickListener, FloatingButtonLisenter {
 
     @BindView(R.id.avatar)
     CircleImageView avatar;
@@ -44,7 +48,11 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
     ImageView imageEdit;
     @BindView(R.id.fab_refresh)
     FloatingActionButton fabRefresh;
+    @BindView(R.id.frame_layout)
+    FrameLayout frameLayout;
     private ObjectAnimator animator;
+    private AboutFragment aboutFragment;
+    private PictuerFragment pictuerFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +71,17 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
             }
         }
         initLisenter();
+        addFragment();
+    }
+
+    /**
+     * 添加Fragment
+     */
+    private void addFragment() {
+        FragmentTransaction bt = getSupportFragmentManager().beginTransaction();
+        aboutFragment=new AboutFragment();
+        bt.replace(R.id.frame_layout,aboutFragment);
+        bt.commit();
     }
 
     /**
@@ -71,6 +90,30 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
     private void initLisenter() {
         imageEdit.setOnClickListener(this);
         fabRefresh.setOnClickListener(this);
+        rgSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_text://文字
+                        FragmentTransaction btAbout = getSupportFragmentManager().beginTransaction();
+                        if(aboutFragment==null){
+                            aboutFragment=new AboutFragment();
+                        }
+                        btAbout.replace(R.id.frame_layout,aboutFragment);
+                        btAbout.commit();
+                        break;
+
+                    case R.id.rb_picter://图片
+                        FragmentTransaction btPicture = getSupportFragmentManager().beginTransaction();
+                        if(pictuerFragment==null){
+                            pictuerFragment=new PictuerFragment();
+                        }
+                        btPicture.replace(R.id.frame_layout,pictuerFragment);
+                        btPicture.commit();
+                        break;
+                }
+            }
+        });
     }
 
 
@@ -89,14 +132,15 @@ public class AboutActivity extends MyBaseActivity implements View.OnClickListene
                 int rbId = rgSelect.getCheckedRadioButtonId();
                 switch (rbId) {
                     case R.id.rb_text://文字
-                        AboutFragment aboutFragment= (AboutFragment) getSupportFragmentManager().findFragmentById(R.id.about_fragment);
                         if(aboutFragment!=null){
-                            aboutFragment.queryPost(this);
+                            aboutFragment.queryPost(AboutActivity.this);
                         }
                         break;
 
                     case R.id.rb_picter://图片
-                        //TODO
+                        if(pictuerFragment!=null){
+                            pictuerFragment.queryPost(AboutActivity.this);
+                        }
                         break;
                 }
                 break;

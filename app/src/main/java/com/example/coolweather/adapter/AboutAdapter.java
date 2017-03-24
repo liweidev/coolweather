@@ -149,6 +149,7 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
             public void onClick(View v) {
                 Intent intent=new Intent(mContext, CommentActivity.class);
                 intent.putExtra("post",post);
+                intent.putExtra("type","text");
                 mContext.startActivity(intent);
             }
         });
@@ -158,6 +159,7 @@ public class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.MyViewHolder
             public void onClick(View v) {
                 Intent intent=new Intent(mContext, CommentActivity.class);
                 intent.putExtra("post",post);
+                intent.putExtra("type","text");
                 mContext.startActivity(intent);
             }
         });

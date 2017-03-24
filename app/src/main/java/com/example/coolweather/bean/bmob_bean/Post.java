@@ -50,6 +50,20 @@ public class Post extends BmobObject implements Serializable{
      */
     private List<MyUser> userList;
 
+    /**
+     * 帖子的类型
+     */
+    private String type;
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+
+        return type;
+    }
+
     public void setUserList(List<MyUser> userList) {
         this.userList = userList;
     }
