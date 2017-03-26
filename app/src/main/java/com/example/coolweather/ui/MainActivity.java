@@ -13,7 +13,7 @@ import android.support.v4.content.ContextCompat;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.app.MyApplication;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.lisenter.MyLocationListener;

@@ -8,7 +8,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.FutureTarget;
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.app.MyApplication;
 import com.example.coolweather.lisenter.ImagePathLisenter;
 import com.example.coolweather.ui.WeatherActivity;

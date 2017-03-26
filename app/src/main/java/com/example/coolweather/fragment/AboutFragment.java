@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.adapter.AboutAdapter;
 import com.example.coolweather.bean.bmob_bean.Comment;
 import com.example.coolweather.bean.bmob_bean.Post;
@@ -27,6 +27,7 @@ import butterknife.ButterKnife;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+
 
 /**
  * Created by liwei on 2017/3/13.
@@ -113,7 +114,7 @@ public class AboutFragment extends Fragment {
                         });
                     }
 
-                    ToastUtils.showToast("加载成功");
+                    //ToastUtils.showToast("加载成功");
                     //DialogUtils.dissmissDialog();
                     swipeRefresh.setRefreshing(false);
                     /*postList.clear();

@@ -49,7 +49,7 @@
             android:id="@+id/choose_area_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="com.example.coolweather.fragment.ChooseAreaFragment"
+            android:name="ChooseAreaFragment"
             android:layout_gravity="start"
             />-->
             <android.support.design.widget.NavigationView

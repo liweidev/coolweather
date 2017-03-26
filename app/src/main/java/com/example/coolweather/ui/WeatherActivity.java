@@ -44,7 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.app.MyApplication;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.bean.bmob_bean.MyUser;
@@ -239,7 +239,7 @@ public class WeatherActivity extends MyBaseActivity {
                     @Override
                     public void done(MyUser myUser, BmobException e) {
                         if(e==null){
-                            ToastUtils.showToast("登录成功");
+                            //ToastUtils.showToast("登录成功");
                         }else {
                             ToastUtils.showToast("登录失败");
                             loginState.setEnabled(true);
@@ -333,9 +333,9 @@ public class WeatherActivity extends MyBaseActivity {
                         }
                         break;
 
-                    case R.id.with_us:
-                        ToastUtils.showToast("关于我们");
-                        break;
+                    /*case R.id.with_us:
+                        //ToastUtils.showToast("关于我们");
+                        break;*/
                 }
                 return true;
             }
@@ -446,7 +446,7 @@ public class WeatherActivity extends MyBaseActivity {
                                         @Override
                                         public void done(MyUser myUser, BmobException e) {
                                             if(e==null){
-                                                ToastUtils.showToast("登录成功");
+                                                //ToastUtils.showToast("登录成功");
                                                 loginState.setText(myPhone);
                                                 loginState.setEnabled(false);
                                                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
@@ -479,7 +479,7 @@ public class WeatherActivity extends MyBaseActivity {
                                                         @Override
                                                         public void done(MyUser myUser, BmobException e) {
                                                             if(e==null){
-                                                                ToastUtils.showToast("登录成功");
+                                                               // ToastUtils.showToast("登录成功");
                                                             }
                                                         }
                                                     });
@@ -772,7 +772,7 @@ public class WeatherActivity extends MyBaseActivity {
                                         if(e==null){
                                             //Log.d("tag","成功:"+fileUrl);
                                             DialogUtils.dissmissDialog();
-                                            ToastUtils.showToast("上传成功");
+                                            //ToastUtils.showToast("上传成功");
                                             //将头像保存到本地
                                             Glide.with(WeatherActivity.this).load(imageUri).into(avarta);
                                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
@@ -903,7 +903,7 @@ public class WeatherActivity extends MyBaseActivity {
                                         editor.putString("imagePath",imagePath);
                                         editor.apply();
                                         DialogUtils.dissmissDialog();
-                                        ToastUtils.showToast("图片上传成功");
+                                        //ToastUtils.showToast("图片上传成功");
                                     }else{
                                         ToastUtils.showToast("图片上传失败");
                                         DialogUtils.dissmissDialog();

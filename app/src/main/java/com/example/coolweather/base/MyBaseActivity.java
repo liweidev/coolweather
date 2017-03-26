@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.utils.ActivityUtils;
 import com.example.coolweather.utils.NetworkUtils;
 import com.example.coolweather.utils.ToastUtils;

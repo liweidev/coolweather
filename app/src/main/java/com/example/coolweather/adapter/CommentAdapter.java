@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.bean.bmob_bean.Comment;
 import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.bean.bmob_bean.Post;

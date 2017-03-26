@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.adapter.CommentAdapter;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.bean.bmob_bean.Comment;
@@ -104,7 +104,7 @@ public class CommentActivity extends MyBaseActivity implements View.OnClickListe
             public void done(List<Comment> list, BmobException e) {
                 if(e==null){
                     DialogUtils.dissmissDialog();
-                    ToastUtils.showToast("查询评论成功");
+                    //ToastUtils.showToast("查询评论成功");
                     if(list.size()==0){
                         ToastUtils.showToast("当前暂无评论");
                         return;
@@ -185,7 +185,7 @@ public class CommentActivity extends MyBaseActivity implements View.OnClickListe
                     public void done(String s, BmobException e) {
                         if(e==null){
                             DialogUtils.dissmissDialog();
-                            ToastUtils.showToast("评论成功");
+                            //ToastUtils.showToast("评论成功");
                             etComment.setText("");
                             queryCommentWithPost();
                             recyclerView.scrollToPosition(1);

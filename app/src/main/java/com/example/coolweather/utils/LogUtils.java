@@ -13,7 +13,7 @@ public class LogUtils {
     public static final int WARM=3;
     public static final int ERROR=4;
     public static final int NOTHING=5;
-    private static int level=1;
+    private static int level=5;
 
     public static void v(String tag,String msg){
         if(level<=VERBOSE){

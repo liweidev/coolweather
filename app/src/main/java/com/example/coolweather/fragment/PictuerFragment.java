@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.adapter.PicterAdapter;
 import com.example.coolweather.bean.bmob_bean.Comment;
 import com.example.coolweather.bean.bmob_bean.Post;
@@ -107,7 +107,7 @@ public class PictuerFragment extends Fragment {
                         });
                     }
 
-                    ToastUtils.showToast("加载成功");
+                    //ToastUtils.showToast("加载成功");
                     //DialogUtils.dissmissDialog();
                     swipeRefresh.setRefreshing(false);
                     /*postList.clear();

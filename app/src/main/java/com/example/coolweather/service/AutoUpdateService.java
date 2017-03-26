@@ -14,7 +14,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.gson.Weather;
 import com.example.coolweather.utils.HttpUtils;
 import com.example.coolweather.utils.JsonUtils;

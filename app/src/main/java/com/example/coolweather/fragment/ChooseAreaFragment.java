@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.adapter.ChooseAreaAdapter;
 import com.example.coolweather.bean.City;
 import com.example.coolweather.bean.County;

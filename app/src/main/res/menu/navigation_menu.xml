@@ -19,11 +19,11 @@
             android:title="同城约吧"
             android:icon="@drawable/city_friends"
             app:showAsAction="always"/>
-        <item
+        <!--<item
             android:id="@+id/with_us"
             android:title="关于我们"
             android:icon="@drawable/with_us"
-            app:showAsAction="always"/>
+            app:showAsAction="always"/>-->
 
     </group>
 </menu>

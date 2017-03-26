@@ -22,7 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.coolweather.R;
+import com.liwei.coolweather.R;
 import com.example.coolweather.base.MyBaseActivity;
 import com.example.coolweather.bean.bmob_bean.MyUser;
 import com.example.coolweather.bean.bmob_bean.Post;
@@ -151,7 +151,7 @@ public class PublicPostActivity extends MyBaseActivity implements View.OnClickLi
                         public void done(String s, BmobException e) {
                             if (e == null) {
                                 DialogUtils.dissmissDialog();
-                                ToastUtils.showToast("发布成功");
+                                //ToastUtils.showToast("发布成功");
                                 finish();
                             } else {
                                 ToastUtils.showToast("发布失败");
@@ -195,7 +195,7 @@ public class PublicPostActivity extends MyBaseActivity implements View.OnClickLi
                                         public void done(String s, BmobException e) {
                                             if (e == null) {
                                                 DialogUtils.dissmissDialog();
-                                                ToastUtils.showToast("发布成功");
+                                                //ToastUtils.showToast("发布成功");
                                                 finish();
                                             } else {
                                                 ToastUtils.showToast("发布失败");
